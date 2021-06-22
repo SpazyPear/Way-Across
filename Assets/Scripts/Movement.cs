@@ -37,6 +37,7 @@ public class Movement : MonoBehaviour
         collectInput();
         movement();
         jump();
+        Debug.Log(isGrounded);
 
     }
 
@@ -66,7 +67,7 @@ public class Movement : MonoBehaviour
 
     private void jump()
     {
-        if (Input.GetKeyDown(KeyCode.Space)) //used to be isgoru
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded) //used to be isgoru
         {
             rb.AddForce(new Vector3(0, 2.0f, 0) * jumpForce, ForceMode.Impulse);
         }
@@ -89,7 +90,7 @@ public class Movement : MonoBehaviour
 
     private void OnCollisionStay(Collision collision)
     {
-        if (collision.gameObject.tag == "terrain")
+        if (collision.gameObject.tag == "ground")
         {
             isGrounded = true;
         }
@@ -97,7 +98,10 @@ public class Movement : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        isGrounded = false;
+        if (other.gameObject.tag == "ground")
+        { 
+            isGrounded = false;
+        }
     }
 
 

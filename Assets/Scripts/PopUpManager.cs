@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class PopUpManager : MonoBehaviour
@@ -13,7 +14,8 @@ public class PopUpManager : MonoBehaviour
     private float posZ;
     public Tweener tweener;
     private List<GameObject> pastPlatforms;
-
+    private bool jumped;
+    private float relHeight;
 
     // Start is called before the first frame update
     void Start()
@@ -22,6 +24,9 @@ public class PopUpManager : MonoBehaviour
         pastPlatforms = new List<GameObject>();
         posX = player.position.x;
         posZ = player.position.z;
+        relHeight = player.position.y;
+        Thread jumpThread = new Thread(new ThreadStart(jumpPop));
+        jumpThread.Start();
 
     }
 
@@ -29,54 +34,76 @@ public class PopUpManager : MonoBehaviour
     void Update()
     {
 
+        pop();
+        
+
+
+    }
+
+    void jumpPop()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            while (player.position.y > relHeight + 4f)
+            {
+                if (player.position.y == relHeight + 4f)
+                {
+                    relHeight += 4;
+                    posArray.Add(Instantiate(prefab, roundVector3(player.forward * 5 + player.position + new Vector3(0, 4, 0)), Quaternion.identity));
+                    break;
+                }
+            }
+        }
+    }
+
+    void pop()
+    {
         Debug.Log(player.forward + player.position);
         Vector2 currentPos = new Vector2((float)Math.Floor(posX), (float)Math.Floor(posZ));
         double relPosX = Math.Round(player.position.x);
         double relPosZ = Math.Round(player.position.z);
         if (relPosX > posX + 2 || relPosZ > posZ + 2 || relPosX < posX - 2 || relPosZ < posZ - 2)
         {
-           // if (Physics.CheckSphere(player.forward + player.position, 1f) == true)
+            // if (Physics.CheckSphere(player.forward + player.position, 1f) == true)
             //{
 
 
 
-                posX = player.position.x;
-                posZ = player.position.z;
-               
+            posX = player.position.x;
+            posZ = player.position.z;
 
-                foreach (GameObject obj in posArray)
-                {
-                    pastPlatforms.Add(obj); 
-                }
 
-                posArray.Clear();
-                
-                Vector3 forward = roundVector3( player.forward*5 + player.position);
-                Vector3 left =  roundVector3(player.right*2 + player.forward*5 + player.position);
-                Vector3 right = roundVector3(-player.right*2 + player.forward*5 + player.position);
-                GameObject first = Instantiate(prefab, new Vector3(forward.x, -2f, forward.z), Quaternion.identity);
-                posArray.Add(first); //top left
-                posArray.Add(Instantiate(prefab, new Vector3(left.x, -2f, left.z), Quaternion.identity));
-                posArray.Add(Instantiate(prefab, new Vector3(right.x, -2f, right.z), Quaternion.identity));
-
-                foreach (GameObject obj in pastPlatforms)
-                {
-                    if (Vector3.Distance(player.transform.position, obj.transform.position) > 15)
-                    {
-                        tweener.AddTween(obj.transform, obj.transform.position, new Vector3(obj.transform.position.x, -20f, obj.transform.position.z), 2f);
-                    }
-                }
-
-                foreach (GameObject obj in posArray)
-                {
-                    Debug.Log("pos");
-                    tweener.AddTween(obj.transform, obj.transform.position, new Vector3(obj.transform.position.x, 0f, obj.transform.position.z), 1.5f);
-                }
-                Debug.Log("popped");
+            foreach (GameObject obj in posArray)
+            {
+                pastPlatforms.Add(obj);
             }
-       // }
-    }
 
+            posArray.Clear();
+
+            Vector3 forward = roundVector3(player.forward * 5 + player.position);
+            Vector3 left = roundVector3(player.right * 2 + player.forward * 5 + player.position);
+            Vector3 right = roundVector3(-player.right * 2 + player.forward * 5 + player.position);
+            GameObject first = Instantiate(prefab, new Vector3(forward.x, -2f, forward.z), Quaternion.identity);
+            posArray.Add(first); //top left
+            posArray.Add(Instantiate(prefab, new Vector3(left.x, -2f, left.z), Quaternion.identity));
+            posArray.Add(Instantiate(prefab, new Vector3(right.x, -2f, right.z), Quaternion.identity));
+
+            foreach (GameObject obj in pastPlatforms)
+            {
+                if (Vector3.Distance(player.transform.position, obj.transform.position) > 15)
+                {
+                    tweener.AddTween(obj.transform, obj.transform.position, new Vector3(obj.transform.position.x, -20f, obj.transform.position.z), 2f);
+                }
+            }
+
+            foreach (GameObject obj in posArray)
+            {
+                Debug.Log("pos");
+                tweener.AddTween(obj.transform, obj.transform.position, new Vector3(obj.transform.position.x, nearestMultiple(Convert.ToInt32(player.position.y - 4)), obj.transform.position.z), 1.5f);
+            }
+            Debug.Log("popped");
+        }
+    }
     Vector3 roundVector3(Vector3 pos)
     {
         return new Vector3(nearestMultiple(Convert.ToInt32(Mathf.Round(pos.x))), Mathf.Round(pos.y), nearestMultiple(Convert.ToInt32(Mathf.Round(pos.z))));
@@ -84,6 +111,7 @@ public class PopUpManager : MonoBehaviour
 
     int nearestMultiple(int num) //isnt working with negatives
     {
+        num -= 1;
         if (num < 0)
         {
             int remainderNeg = num % 4;

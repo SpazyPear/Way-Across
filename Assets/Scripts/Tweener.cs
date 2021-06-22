@@ -41,6 +41,10 @@ public class Tweener : MonoBehaviour
         foreach (Tween tween in toBeRemoved)
         {
             activeTweens.Remove(tween);
+            if (tween.Target.position.y == -2)
+            {
+                Destroy(tween.Target.gameObject);
+            }
         }
     }
 
