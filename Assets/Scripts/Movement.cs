@@ -7,7 +7,7 @@ public class Movement : MonoBehaviour
     private Transform pos;
     private Tweener tweener;
     public Camera cam;
-    private bool isGrounded;
+    public bool isGrounded;
     public Rigidbody rb;
     public GameObject prefab;
     public float jumpForce;

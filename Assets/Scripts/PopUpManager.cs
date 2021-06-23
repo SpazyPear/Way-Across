@@ -16,6 +16,9 @@ public class PopUpManager : MonoBehaviour
     private List<GameObject> pastPlatforms;
     private bool jumped;
     private float relHeight;
+    public GameObject[] ForestArray;
+    public GameObject[] WinterArray;
+    public GameObject[] HellArray;
 
     // Start is called before the first frame update
     void Start()
@@ -25,8 +28,6 @@ public class PopUpManager : MonoBehaviour
         posX = player.position.x;
         posZ = player.position.z;
         relHeight = player.position.y;
-        Thread jumpThread = new Thread(new ThreadStart(jumpPop));
-        jumpThread.Start();
 
     }
 
@@ -35,26 +36,10 @@ public class PopUpManager : MonoBehaviour
     {
 
         pop();
-        
-
 
     }
 
-    void jumpPop()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            while (player.position.y > relHeight + 4f)
-            {
-                if (player.position.y == relHeight + 4f)
-                {
-                    relHeight += 4;
-                    posArray.Add(Instantiate(prefab, roundVector3(player.forward * 5 + player.position + new Vector3(0, 4, 0)), Quaternion.identity));
-                    break;
-                }
-            }
-        }
-    }
+
 
     void pop()
     {
@@ -62,7 +47,7 @@ public class PopUpManager : MonoBehaviour
         Vector2 currentPos = new Vector2((float)Math.Floor(posX), (float)Math.Floor(posZ));
         double relPosX = Math.Round(player.position.x);
         double relPosZ = Math.Round(player.position.z);
-        if (relPosX > posX + 2 || relPosZ > posZ + 2 || relPosX < posX - 2 || relPosZ < posZ - 2)
+        if (relPosX > posX + 2 || relPosZ > posZ + 2 || relPosX < posX - 2 || relPosZ < posZ - 2 && player.GetComponent<Movement>().isGrounded)
         {
             // if (Physics.CheckSphere(player.forward + player.position, 1f) == true)
             //{
@@ -83,10 +68,25 @@ public class PopUpManager : MonoBehaviour
             Vector3 forward = roundVector3(player.forward * 5 + player.position);
             Vector3 left = roundVector3(player.right * 2 + player.forward * 5 + player.position);
             Vector3 right = roundVector3(-player.right * 2 + player.forward * 5 + player.position);
-            GameObject first = Instantiate(prefab, new Vector3(forward.x, -2f, forward.z), Quaternion.identity);
-            posArray.Add(first); //top left
+            if (player.position.y < 3)
+            {
+
+                posArray.Add(Instantiate(HellArray[UnityEngine.Random.Range(0, ForestArray.Length - 1)], new Vector3(forward.x, -2f, forward.z), Quaternion.identity));
+                posArray.Add(Instantiate(HellArray[UnityEngine.Random.Range(0, ForestArray.Length - 1)], new Vector3(left.x, -2f, left.z), Quaternion.identity));
+                posArray.Add(Instantiate(HellArray[UnityEngine.Random.Range(0, ForestArray.Length - 1)], new Vector3(right.x, -2f, right.z), Quaternion.identity));
+                
+            }
+            else if (player.position.y > 2)
+            {
+                posArray.Add(Instantiate(ForestArray[UnityEngine.Random.Range(0, ForestArray.Length-1)], new Vector3(forward.x, -2f, forward.z), Quaternion.identity));
+                posArray.Add(Instantiate(ForestArray[UnityEngine.Random.Range(0, ForestArray.Length-1)], new Vector3(left.x, -2f, left.z), Quaternion.identity));
+                posArray.Add(Instantiate(ForestArray[UnityEngine.Random.Range(0, ForestArray.Length-1)], new Vector3(right.x, -2f, right.z), Quaternion.identity));
+                GameObject Tree = Instantiate(ForestArray[2], new Vector3(left.x, -2f, left.z), Quaternion.identity);
+                tweener.AddTween(Tree.transform, Tree.transform.position, new Vector3(Tree.transform.position.x, nearestMultiple(Convert.ToInt32(player.position.y - 4) + 1), Tree.transform.position.z), 4f);
+            }
+           /* posArray.Add(Instantiate(prefab, new Vector3(forward.x, -2f, forward.z), Quaternion.identity));
             posArray.Add(Instantiate(prefab, new Vector3(left.x, -2f, left.z), Quaternion.identity));
-            posArray.Add(Instantiate(prefab, new Vector3(right.x, -2f, right.z), Quaternion.identity));
+            posArray.Add(Instantiate(prefab, new Vector3(right.x, -2f, right.z), Quaternion.identity)); */
 
             foreach (GameObject obj in pastPlatforms)
             {
