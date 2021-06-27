@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,32 +21,46 @@ public class Tweener : MonoBehaviour
     {
         foreach (Tween activeTween in activeTweens)
         {
-            if (activeTween.Target != null)
+            Debug.Log("0");
+            try
             {
-                if (Vector3.Distance(activeTween.Target.position, activeTween.EndPos) > 0.1f)
+                if (activeTween.Target != null)
                 {
-                    float timeFraction = (Time.time - activeTween.StartTime) / activeTween.Duration;
-                    float newTime = Mathf.Pow(timeFraction, 2);
-                    activeTween.Target.position = Vector3.Lerp(activeTween.Target.position, activeTween.EndPos, timeFraction);
+                    Debug.Log("1");
+                    if (Vector3.Distance(activeTween.Target.position, activeTween.EndPos) > 0.1f)
+                    {
+                        Debug.Log("2");
+                        float timeFraction = (Time.time - activeTween.StartTime) / activeTween.Duration;
+                        float newTime = Mathf.Pow(timeFraction, 2);
+                        activeTween.Target.position = Vector3.Lerp(activeTween.Target.position, activeTween.EndPos, timeFraction);
 
+                    }
+                    else
+                    {
+                        Debug.Log("3");
+                        activeTween.Target.position = activeTween.EndPos;
+                        toBeRemoved.Add(activeTween);
+                        //Cursor.lockState = CursorLockMode.Confined;
+                    }
                 }
-                else
-                {
-                    activeTween.Target.position = activeTween.EndPos;
-                    toBeRemoved.Add(activeTween);
-                    //Cursor.lockState = CursorLockMode.Confined;
-                }
+            }
+            
+
+
+            catch (Exception e)
+            {
+
             }
         }
 
-        foreach (Tween tween in toBeRemoved)
+      /*  foreach (Tween tween in toBeRemoved)
         {
             activeTweens.Remove(tween);
             if (tween.Target.position.y == -2)
             {
                 Destroy(tween.Target.gameObject);
             }
-        }
+        } */
     }
 
     public void AddTween(Transform targetObject, Vector3 startPos, Vector3 endPos, float duration)
