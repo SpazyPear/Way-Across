@@ -154,18 +154,21 @@ public class PopUpManager : MonoBehaviour
         return new Vector3(nearestMultiple(Convert.ToInt32(Mathf.Round(pos.x))), Mathf.Round(pos.y), nearestMultiple(Convert.ToInt32(Mathf.Round(pos.z))));
     }
 
-    int nearestMultiple(int num) //isnt working with negatives
+    int nearestMultiple(int num)
     {
-        num -= 1;
+
+        num = num % 2 == 0 ? num : num + 1;
+       
         if (num < 0)
         {
             int remainderNeg = num % 4;
-            return num + 4 + remainderNeg;
+            return num + remainderNeg;
         }
+
 
         int remainder = num % 4;
       
 
-        return num + 4 - remainder;
+        return num - remainder;
     }
 }
