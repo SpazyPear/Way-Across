@@ -21,15 +21,15 @@ public class Tweener : MonoBehaviour
     {
         foreach (Tween activeTween in activeTweens)
         {
-            Debug.Log("0");
+            //Debug.Log("0");
             try
             {
                 if (activeTween.Target != null)
                 {
-                    Debug.Log("1");
+                   // Debug.Log("1");
                     if (Vector3.Distance(activeTween.Target.position, activeTween.EndPos) > 0.1f)
                     {
-                        Debug.Log("2");
+                        //Debug.Log("2");
                         float timeFraction = (Time.time - activeTween.StartTime) / activeTween.Duration;
                         float newTime = Mathf.Pow(timeFraction, 2);
                         activeTween.Target.position = Vector3.Lerp(activeTween.Target.position, activeTween.EndPos, timeFraction);
@@ -37,7 +37,7 @@ public class Tweener : MonoBehaviour
                     }
                     else
                     {
-                        Debug.Log("3");
+                       // Debug.Log("3");
                         activeTween.Target.position = activeTween.EndPos;
                         toBeRemoved.Add(activeTween);
                         //Cursor.lockState = CursorLockMode.Confined;
