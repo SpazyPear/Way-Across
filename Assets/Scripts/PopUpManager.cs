@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 
@@ -18,25 +19,39 @@ public class PopUpManager : MonoBehaviour
     private List<GameObject> toBeRemoved;
     private bool jumped;
     private float relHeight;
-    public GameObject[] ForestArray;
-    public GameObject[] WinterArray;
-    public GameObject[] HellArray;
+    public Dictionary<GameObject, int> ForestArray;
+    public Dictionary<GameObject, int> WinterArray;
+    public Dictionary<GameObject, int> HellArray;
     private Vector3 forward;
     private Vector3 left;
     private Vector3 right;
     private enum biome { Hell, Grass, Ice };
     private biome currentBiome;
     private Del popMethodGroup;
+    [SerializeField]
+    private List<GameObject> forestKeysList;
+    [SerializeField]
+    private List<int> forestValuesList;
+    [SerializeField]
+    private List<GameObject> winterKeysList;
+    [SerializeField]
+    private List<int> winterValuesList;
+    [SerializeField]
+    private List<GameObject> hellKeysList;
+    [SerializeField]
+    private List<int> hellValuesList;
 
     delegate void Del();
 
 
-    // Start is called before the first frame update
+    void Awake()
+    {
+        instantiateDataStructures();
+    }
+
     void Start()
     {
-        posArray = new List<GameObject>();
-        pastPlatforms = new List<GameObject>();
-        toBeRemoved = new List<GameObject>();
+        
         posX = player.position.x;
         posZ = player.position.z;
         relHeight = player.position.y;
@@ -46,7 +61,6 @@ public class PopUpManager : MonoBehaviour
 
     }
 
-    // Update is called once per frame
     void Update()
     {
         popMethodGroup();
@@ -54,6 +68,31 @@ public class PopUpManager : MonoBehaviour
         Debug.Log("past " + pastPlatforms.Count);
         Debug.Log("removed " + toBeRemoved.Count); */ 
     }
+
+    void instantiateDataStructures()
+    {
+        posArray = new List<GameObject>();
+        pastPlatforms = new List<GameObject>();
+        toBeRemoved = new List<GameObject>();
+        ForestArray = new Dictionary<GameObject, int>();
+        WinterArray = new Dictionary<GameObject, int>();
+        HellArray = new Dictionary<GameObject, int>();
+       
+        for (int i = 0; i < forestKeysList.Count; i++)
+        {
+            ForestArray.Add(forestKeysList[i], forestValuesList[i]);
+        }
+        for (int i = 0; i < winterKeysList.Count; i++)
+        {
+            WinterArray.Add(winterKeysList[i], winterValuesList[i]);
+        }
+        for (int i = 0; i < hellKeysList.Count; i++)
+        {
+            HellArray.Add(hellKeysList[i], hellValuesList[i]);
+        }
+    }
+
+
 
     void setBiome()
     {
@@ -78,6 +117,7 @@ public class PopUpManager : MonoBehaviour
         double relPosY = Math.Round(player.position.y);
         if (relPosX > posX + 2 || relPosZ > posZ + 2 || relPosX < posX - 2 || relPosZ < posZ - 2)
         {
+            
             posX = player.position.x;
             posZ = player.position.z;
 
@@ -126,7 +166,7 @@ public class PopUpManager : MonoBehaviour
             if (Vector3.Distance(player.transform.position, obj.transform.position) > 15)
             {
 
-                GameObject hellObj = Instantiate(HellArray[UnityEngine.Random.Range(0, HellArray.Length - 1)], new Vector3(obj.transform.position.x, obj.transform.position.y, obj.transform.position.z), Quaternion.identity);
+                GameObject hellObj = Instantiate(HellArray.ElementAt(0).Key, new Vector3(obj.transform.position.x, obj.transform.position.y, obj.transform.position.z), Quaternion.identity);
                 tweener.AddTween(hellObj.transform, hellObj.transform.position, new Vector3(hellObj.transform.position.x, -20f, hellObj.transform.position.z), 3f);
                 toBeRemoved.Add(obj);
             }
@@ -145,11 +185,33 @@ public class PopUpManager : MonoBehaviour
         posY = player.position.y;
     }
 
-    void popBiome(GameObject[] biomeArray)
+    void popBiome(Dictionary<GameObject, int> biomeArray)
     {
-        posArray.Add(Instantiate(biomeArray[UnityEngine.Random.Range(0, biomeArray.Length)], new Vector3(forward.x, -2f, forward.z), Quaternion.identity));
-        posArray.Add(Instantiate(biomeArray[UnityEngine.Random.Range(0, biomeArray.Length)], new Vector3(left.x, -2f, left.z), Quaternion.identity));
-        posArray.Add(Instantiate(biomeArray[UnityEngine.Random.Range(0, biomeArray.Length)], new Vector3(right.x, -2f, right.z), Quaternion.identity));
+        Func<Dictionary<GameObject, int>, GameObject> getModel = biomeArray => {
+            
+            while (true)
+            {
+                GameObject potentialPop = biomeArray.ElementAt(UnityEngine.Random.Range(0, biomeArray.Count)).Key;
+                if (biomeArray[potentialPop] < UnityEngine.Random.Range(1, 10))
+                {
+                    return potentialPop;
+                }
+            }
+        };
+        if (Physics.CheckSphere(new Vector3(forward.x, -2f, forward.z), 1) == false)
+        {
+            posArray.Add(Instantiate(getModel(biomeArray), new Vector3(forward.x, -2f, forward.z), Quaternion.identity));
+        }
+
+        if (Physics.CheckSphere(new Vector3(left.x, -2f, left.z), 1) == false)
+        {
+            posArray.Add(Instantiate(getModel(biomeArray), new Vector3(left.x, -2f, left.z), Quaternion.identity));
+        }
+
+        if (Physics.CheckSphere(new Vector3(right.x, -2f, right.z), 1) == false)
+        {
+            posArray.Add(Instantiate(getModel(biomeArray), new Vector3(right.x, -2f, right.z), Quaternion.identity));
+        }
     }
 
     Vector3 roundVector3(Vector3 pos)

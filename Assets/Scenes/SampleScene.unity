@@ -216,22 +216,23 @@ MonoBehaviour:
   player: {fileID: 1365182998}
   prefab: {fileID: 0}
   tweener: {fileID: 493531343}
-  ForestArray:
+  forestKeysList:
   - {fileID: 6664102900009068327, guid: afa1df272158dca40b8a409aaca2f100, type: 3}
   - {fileID: 6169680153879754890, guid: e19a7ba8b5140ff4cb17e7e0918e3278, type: 3}
-  - {fileID: 7284957191060935758, guid: 0f6a842fc7245754d8e0f5f2c76cd98b, type: 3}
   - {fileID: 5235014333831351359, guid: a702b95b78bb9a94c9a5dbaf3ff2259a, type: 3}
-  WinterArray:
+  - {fileID: 7284957191060935758, guid: 0f6a842fc7245754d8e0f5f2c76cd98b, type: 3}
+  forestValuesList: 00000000030000000400000008000000
+  winterKeysList:
   - {fileID: 7190672925691308113, guid: cdd6efd5934eeae45b622b51d8622bfd, type: 3}
-  - {fileID: 6468075936451158045, guid: c66eefca522be314c80ba5408a1ac7aa, type: 3}
-  - {fileID: 7194004404131139137, guid: 06e65fe4ebefd9641b9aeffbcf531f42, type: 3}
-  - {fileID: 6137659661415257092, guid: ac4fd7b959e320f4da761b16aea29ee8, type: 3}
   - {fileID: 6438240153920593636, guid: 7d8279a536111694b9fdcfb9f0986db7, type: 3}
-  - {fileID: 1205481286527156090, guid: 10f50576286bab44995daf2e8a80c816, type: 3}
-  HellArray:
-  - {fileID: 7194004404131139137, guid: 06e65fe4ebefd9641b9aeffbcf531f42, type: 3}
-  - {fileID: 7190672925691308113, guid: cdd6efd5934eeae45b622b51d8622bfd, type: 3}
   - {fileID: 6468075936451158045, guid: c66eefca522be314c80ba5408a1ac7aa, type: 3}
+  - {fileID: 6137659661415257092, guid: ac4fd7b959e320f4da761b16aea29ee8, type: 3}
+  - {fileID: 7194004404131139137, guid: 06e65fe4ebefd9641b9aeffbcf531f42, type: 3}
+  - {fileID: 1205481286527156090, guid: 10f50576286bab44995daf2e8a80c816, type: 3}
+  winterValuesList: 000000000000000001000000030000000700000006000000
+  hellKeysList:
+  - {fileID: 7190672925691308113, guid: cdd6efd5934eeae45b622b51d8622bfd, type: 3}
+  hellValuesList: 00000000
 --- !u!4 &356297474
 Transform:
   m_ObjectHideFlags: 0
