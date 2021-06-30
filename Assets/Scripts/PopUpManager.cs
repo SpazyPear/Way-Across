@@ -25,8 +25,8 @@ public class PopUpManager : MonoBehaviour
     private Vector3 forward;
     private Vector3 left;
     private Vector3 right;
-    private enum biome { Hell, Grass, Ice };
-    private biome currentBiome;
+    public enum biome { Hell, Grass, Ice };
+    public biome currentBiome;
     private Del popMethodGroup;
     [SerializeField]
     private List<GameObject> forestKeysList;
@@ -96,7 +96,7 @@ public class PopUpManager : MonoBehaviour
 
     void setBiome()
     {
-        if (player.position.y < 3)
+        if (player.position.y < 4)
         {
             currentBiome = biome.Hell;
         }
@@ -165,7 +165,6 @@ public class PopUpManager : MonoBehaviour
         {
             if (Vector3.Distance(player.transform.position, obj.transform.position) > 15)
             {
-
                 GameObject hellObj = Instantiate(HellArray.ElementAt(0).Key, new Vector3(obj.transform.position.x, obj.transform.position.y, obj.transform.position.z), Quaternion.identity);
                 tweener.AddTween(hellObj.transform, hellObj.transform.position, new Vector3(hellObj.transform.position.x, -20f, hellObj.transform.position.z), 3f);
                 toBeRemoved.Add(obj);
@@ -176,8 +175,6 @@ public class PopUpManager : MonoBehaviour
         {
             pastPlatforms.Remove(obj);
             Destroy(obj);
-
-
         }
 
         toBeRemoved.Clear();
@@ -198,17 +195,17 @@ public class PopUpManager : MonoBehaviour
                 }
             }
         };
-        if (Physics.CheckSphere(new Vector3(forward.x, -2f, forward.z), 1) == false)
+        if (Physics.CheckBox(new Vector3(forward.x, nearestMultiple(Convert.ToInt32(player.position.y - 4)), forward.z), new Vector3(1, 1, 1)) == false)
         {
             posArray.Add(Instantiate(getModel(biomeArray), new Vector3(forward.x, -2f, forward.z), Quaternion.identity));
         }
 
-        if (Physics.CheckSphere(new Vector3(left.x, -2f, left.z), 1) == false)
+        if (Physics.CheckBox(new Vector3(left.x, nearestMultiple(Convert.ToInt32(player.position.y - 4)), left.z), new Vector3(1, 1, 1)) == false)
         {
             posArray.Add(Instantiate(getModel(biomeArray), new Vector3(left.x, -2f, left.z), Quaternion.identity));
         }
 
-        if (Physics.CheckSphere(new Vector3(right.x, -2f, right.z), 1) == false)
+        if (Physics.CheckBox(new Vector3(right.x, nearestMultiple(Convert.ToInt32(player.position.y - 4)), right.z), new Vector3(1, 1, 1)) == false)
         {
             posArray.Add(Instantiate(getModel(biomeArray), new Vector3(right.x, -2f, right.z), Quaternion.identity));
         }
