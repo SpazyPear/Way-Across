@@ -96,7 +96,7 @@ public class PopUpManager : MonoBehaviour
 
     void setBiome()
     {
-        if (player.position.y < 4)
+        if (player.position.y < 3)
         {
             currentBiome = biome.Hell;
         }
@@ -161,21 +161,23 @@ public class PopUpManager : MonoBehaviour
             tweener.AddTween(obj.transform, obj.transform.position, new Vector3(obj.transform.position.x, nearestMultiple(Convert.ToInt32(player.position.y - 4)), obj.transform.position.z), 1.5f);
         }
 
-        foreach (GameObject obj in pastPlatforms)
+        for (int count = pastPlatforms.Count - 1; count > 0; count--)
         {
-            if (Vector3.Distance(player.transform.position, obj.transform.position) > 15)
+            if (Vector3.Distance(player.transform.position, pastPlatforms.ElementAt(count).transform.position) > 15)
             {
-                GameObject hellObj = Instantiate(HellArray.ElementAt(0).Key, new Vector3(obj.transform.position.x, obj.transform.position.y, obj.transform.position.z), Quaternion.identity);
+                GameObject hellObj = Instantiate(HellArray.ElementAt(0).Key, new Vector3(pastPlatforms.ElementAt(count).transform.position.x, pastPlatforms.ElementAt(count).transform.position.y, pastPlatforms.ElementAt(count).transform.position.z), Quaternion.identity);
                 tweener.AddTween(hellObj.transform, hellObj.transform.position, new Vector3(hellObj.transform.position.x, -20f, hellObj.transform.position.z), 3f);
-                toBeRemoved.Add(obj);
+                Destroy(pastPlatforms.ElementAt(count));
+                pastPlatforms.RemoveAt(count);
+                
             }
         }
 
-        foreach (GameObject obj in toBeRemoved)
+     /*   foreach (GameObject obj in toBeRemoved)
         {
             pastPlatforms.Remove(obj);
             Destroy(obj);
-        }
+        }*/
 
         toBeRemoved.Clear();
 

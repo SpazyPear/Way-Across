@@ -22,7 +22,7 @@ public class LightingManager : MonoBehaviour
 
     void setLighting()
     {
-        if (popUpManager.currentBiome == curre)
+        
     }
 
 }
