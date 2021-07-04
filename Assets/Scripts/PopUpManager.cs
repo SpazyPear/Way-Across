@@ -13,7 +13,7 @@ public class PopUpManager : MonoBehaviour
     private Vector2 currentPos;
     private float posX;
     private float posZ;
-    private float posY;
+    public float posY;
     public Tweener tweener;
     private List<GameObject> pastPlatforms;
     private List<GameObject> toBeRemoved;
@@ -25,7 +25,7 @@ public class PopUpManager : MonoBehaviour
     private Vector3 forward;
     private Vector3 left;
     private Vector3 right;
-    public enum biome { Hell, Grass, Ice };
+    public enum biome { Hell = -20, Grass = 0, Ice = 100};
     public biome currentBiome;
     private Del popMethodGroup;
     [SerializeField]
@@ -40,6 +40,7 @@ public class PopUpManager : MonoBehaviour
     private List<GameObject> hellKeysList;
     [SerializeField]
     private List<int> hellValuesList;
+    
 
     delegate void Del();
 
@@ -51,13 +52,12 @@ public class PopUpManager : MonoBehaviour
 
     void Start()
     {
-        
+        currentBiome = biome.Grass;
         posX = player.position.x;
         posZ = player.position.z;
         relHeight = player.position.y;
-        Del biomeSet = setBiome;
         Del builder = posChangedInstantiate;
-        popMethodGroup = biomeSet + builder;
+        popMethodGroup = builder;
 
     }
 
@@ -89,24 +89,6 @@ public class PopUpManager : MonoBehaviour
         for (int i = 0; i < hellKeysList.Count; i++)
         {
             HellArray.Add(hellKeysList[i], hellValuesList[i]);
-        }
-    }
-
-
-
-    void setBiome()
-    {
-        if (player.position.y < 3)
-        {
-            currentBiome = biome.Hell;
-        }
-        else if(player.position.y > 2 && player.position.y < 14)
-        {
-            currentBiome = biome.Grass;
-        }
-        else if (player.position.y > 14)
-        {
-            currentBiome = biome.Ice;
         }
     }
 
@@ -148,7 +130,6 @@ public class PopUpManager : MonoBehaviour
                     break;
             }
 
-
             tweenerManager();
 
         }
@@ -158,12 +139,12 @@ public class PopUpManager : MonoBehaviour
     {
         foreach (GameObject obj in posArray)
         {
-            tweener.AddTween(obj.transform, obj.transform.position, new Vector3(obj.transform.position.x, nearestMultiple(Convert.ToInt32(player.position.y - 4)), obj.transform.position.z), 1.5f);
+            tweener.AddTween(obj.transform, obj.transform.position, new Vector3(obj.transform.position.x, (float)currentBiome, obj.transform.position.z), 1.5f);
         }
 
         for (int count = pastPlatforms.Count - 1; count > 0; count--)
         {
-            if (Vector3.Distance(player.transform.position, pastPlatforms.ElementAt(count).transform.position) > 15)
+            if (Vector3.Distance(player.transform.position, pastPlatforms.ElementAt(count).transform.position) > 25)
             {
                 GameObject hellObj = Instantiate(HellArray.ElementAt(0).Key, new Vector3(pastPlatforms.ElementAt(count).transform.position.x, pastPlatforms.ElementAt(count).transform.position.y, pastPlatforms.ElementAt(count).transform.position.z), Quaternion.identity);
                 tweener.AddTween(hellObj.transform, hellObj.transform.position, new Vector3(hellObj.transform.position.x, -20f, hellObj.transform.position.z), 3f);
@@ -173,43 +154,75 @@ public class PopUpManager : MonoBehaviour
             }
         }
 
-     /*   foreach (GameObject obj in toBeRemoved)
-        {
-            pastPlatforms.Remove(obj);
-            Destroy(obj);
-        }*/
-
         toBeRemoved.Clear();
 
-        posY = player.position.y;
+        //posY = player.position.y;
     }
 
     void popBiome(Dictionary<GameObject, int> biomeArray)
     {
-        Func<Dictionary<GameObject, int>, GameObject> getModel = biomeArray => {
-            
-            while (true)
-            {
-                GameObject potentialPop = biomeArray.ElementAt(UnityEngine.Random.Range(0, biomeArray.Count)).Key;
-                if (biomeArray[potentialPop] < UnityEngine.Random.Range(1, 10))
-                {
-                    return potentialPop;
-                }
-            }
-        };
-        if (Physics.CheckBox(new Vector3(forward.x, nearestMultiple(Convert.ToInt32(player.position.y - 4)), forward.z), new Vector3(1, 1, 1)) == false)
+
+        if (Physics.CheckBox(new Vector3(forward.x, (float)currentBiome, forward.z), new Vector3(1, 1, 1)) == false)
         {
             posArray.Add(Instantiate(getModel(biomeArray), new Vector3(forward.x, -2f, forward.z), Quaternion.identity));
         }
 
-        if (Physics.CheckBox(new Vector3(left.x, nearestMultiple(Convert.ToInt32(player.position.y - 4)), left.z), new Vector3(1, 1, 1)) == false)
+        if (Physics.CheckBox(new Vector3(left.x, (float)currentBiome, left.z), new Vector3(1, 1, 1)) == false)
         {
             posArray.Add(Instantiate(getModel(biomeArray), new Vector3(left.x, -2f, left.z), Quaternion.identity));
         }
 
-        if (Physics.CheckBox(new Vector3(right.x, nearestMultiple(Convert.ToInt32(player.position.y - 4)), right.z), new Vector3(1, 1, 1)) == false)
+        if (Physics.CheckBox(new Vector3(right.x, (float)currentBiome, right.z), new Vector3(1, 1, 1)) == false)
         {
             posArray.Add(Instantiate(getModel(biomeArray), new Vector3(right.x, -2f, right.z), Quaternion.identity));
+        }
+
+     
+    }
+
+    public void popStarterArea()
+    {
+        posArray.Clear();
+
+        Dictionary<GameObject, int> biomeArray = new Dictionary<GameObject, int>();
+
+        switch (currentBiome)
+        {
+            case biome.Hell:
+                biomeArray = HellArray;
+                break;
+
+            case biome.Grass:
+                biomeArray = ForestArray;
+                break;
+
+            case biome.Ice:
+                biomeArray = WinterArray;
+                break;
+        }
+
+        posArray.Add(Instantiate(getModel(biomeArray), roundVector3(new Vector3(player.position.x + 4, -2f, player.position.z - 4)), Quaternion.identity));
+        posArray.Add(Instantiate(getModel(biomeArray), roundVector3(new Vector3(player.position.x + 4, -2f, player.position.z)), Quaternion.identity));
+        posArray.Add(Instantiate(getModel(biomeArray), roundVector3(new Vector3(player.position.x + 4, -2f, player.position.z + 4)), Quaternion.identity));
+        posArray.Add(Instantiate(getModel(biomeArray), roundVector3(new Vector3(player.position.x, -2f, player.position.z - 4)), Quaternion.identity));
+        posArray.Add(Instantiate(getModel(biomeArray), roundVector3(new Vector3(player.position.x, -2f, player.position.z)), Quaternion.identity));
+        posArray.Add(Instantiate(getModel(biomeArray), roundVector3(new Vector3(player.position.x, -2f, player.position.z + 4)), Quaternion.identity));
+        posArray.Add(Instantiate(getModel(biomeArray), roundVector3(new Vector3(player.position.x - 4, -2f, player.position.z - 4)), Quaternion.identity));
+        posArray.Add(Instantiate(getModel(biomeArray), roundVector3(new Vector3(player.position.x - 4, -2f, player.position.z)), Quaternion.identity));
+        posArray.Add(Instantiate(getModel(biomeArray), roundVector3(new Vector3(player.position.x - 4, -2f, player.position.z + 4)), Quaternion.identity));
+
+        tweenerManager();
+    }
+
+    GameObject getModel(Dictionary<GameObject, int> biomeArray)
+    {
+        while (true)
+        {
+            GameObject potentialPop = biomeArray.ElementAt(UnityEngine.Random.Range(0, biomeArray.Count)).Key;
+            if (biomeArray[potentialPop] < UnityEngine.Random.Range(1, 10))
+            {
+                return potentialPop;
+            }
         }
     }
 

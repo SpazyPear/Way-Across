@@ -521,6 +521,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4802813540381836131, guid: 0947457e0623ed746a79b161cd12150e, type: 3}
+      propertyPath: ShapeModule.type
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4802813540381836131, guid: 0947457e0623ed746a79b161cd12150e, type: 3}
       propertyPath: ShapeModule.m_Scale.x
       value: 1
       objectReference: {fileID: 0}
@@ -530,6 +534,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4802813540381836131, guid: 0947457e0623ed746a79b161cd12150e, type: 3}
       propertyPath: ShapeModule.m_Scale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4802813540381836131, guid: 0947457e0623ed746a79b161cd12150e, type: 3}
+      propertyPath: ShapeModule.radiusThickness
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4802813540381836157, guid: 0947457e0623ed746a79b161cd12150e, type: 3}

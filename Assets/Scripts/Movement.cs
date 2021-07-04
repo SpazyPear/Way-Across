@@ -1,10 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
-    private Transform pos;
+    public Transform pos;
     private Tweener tweener;
     public Camera cam;
     public bool isGrounded;
@@ -21,6 +24,10 @@ public class Movement : MonoBehaviour
     private bool isTimerRunning = false;
     private Collider other;
     public GameObject target;
+    public bool canUseJetPack = false;
+    public PopUpManager popUpManager;
+    public StatManger statManager;
+    
 
     // Start is called before the first frame update
     void Start()
@@ -37,8 +44,22 @@ public class Movement : MonoBehaviour
         collectInput();
         movement();
         jump();
-        Debug.Log(isGrounded);
+        jetpackUse();
 
+    }
+
+    IEnumerator newBiomePop()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(0.2f);
+            if (pos.position.y > (float)popUpManager.currentBiome)
+            {
+                popUpManager.popStarterArea();
+
+                yield break;
+            }
+        }
     }
 
     private void collectInput()
@@ -57,6 +78,19 @@ public class Movement : MonoBehaviour
         }
     }
 
+    void jetpackUse()
+    {
+        if (Input.GetKeyDown(KeyCode.E) && canUseJetPack)
+        {
+            rb.AddForce(Vector3.up * 47, ForceMode.Impulse);
+            canUseJetPack = false;
+            popUpManager.currentBiome = Enum.GetValues(typeof(PopUpManager.biome)).Cast<PopUpManager.biome>()
+            .Skip(1).First();
+            statManager.coinCount -= 3;
+            statManager.display();
+            StartCoroutine(newBiomePop());
+        }
+    }
     private void movement()
     {
         target.transform.Rotate(0, moveX * sensitivity, 0);
@@ -67,7 +101,7 @@ public class Movement : MonoBehaviour
 
     private void jump()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded) //used to be isgoru
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             rb.AddForce(new Vector3(0, 2.0f, 0) * jumpForce, ForceMode.Impulse);
         }
