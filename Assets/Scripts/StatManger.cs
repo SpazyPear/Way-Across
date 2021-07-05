@@ -14,6 +14,7 @@ public class StatManger : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        movement.nextBiomeEvent += OnBiomeUp;
         coinCount = 0;
     }
 
@@ -23,17 +24,13 @@ public class StatManger : MonoBehaviour
         
     }
 
-    public EventHandler updateCoins;
-
     public void handleCoinCollected()
     {
-        Debug.Log(coinCount);
         coinCount++;
         coinUI.text = "Coins: " + Convert.ToInt32(coinCount);
         if (coinCount >= 3)
         {
             movement.canUseJetPack = true;
-            
         }
         
     }
@@ -41,5 +38,11 @@ public class StatManger : MonoBehaviour
     public void display()
     {
         coinUI.text = "Coins: " + Convert.ToInt32(coinCount);
+    }
+
+    public void OnBiomeUp(object sender, EventArgs e)
+    {
+        coinCount -= 3;
+        display();
     }
 }

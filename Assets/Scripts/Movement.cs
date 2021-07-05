@@ -48,20 +48,6 @@ public class Movement : MonoBehaviour
 
     }
 
-    IEnumerator newBiomePop()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(0.2f);
-            if (pos.position.y > (float)popUpManager.currentBiome)
-            {
-                popUpManager.popStarterArea();
-
-                yield break;
-            }
-        }
-    }
-
     private void collectInput()
     {
         moveHorizontal = Input.GetAxis("Horizontal");
@@ -84,13 +70,17 @@ public class Movement : MonoBehaviour
         {
             rb.AddForce(Vector3.up * 47, ForceMode.Impulse);
             canUseJetPack = false;
-            popUpManager.currentBiome = Enum.GetValues(typeof(PopUpManager.biome)).Cast<PopUpManager.biome>()
-            .Skip(1).First();
-            statManager.coinCount -= 3;
-            statManager.display();
-            StartCoroutine(newBiomePop());
+            OnNextBiome();
         }
     }
+
+    public void OnNextBiome()
+    {
+        nextBiomeEvent?.Invoke(this, EventArgs.Empty);
+    }
+
+    public event EventHandler nextBiomeEvent;
+
     private void movement()
     {
         target.transform.Rotate(0, moveX * sensitivity, 0);

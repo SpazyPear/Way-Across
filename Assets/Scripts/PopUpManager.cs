@@ -17,8 +17,6 @@ public class PopUpManager : MonoBehaviour
     public Tweener tweener;
     private List<GameObject> pastPlatforms;
     private List<GameObject> toBeRemoved;
-    private bool jumped;
-    private float relHeight;
     public Dictionary<GameObject, int> ForestArray;
     public Dictionary<GameObject, int> WinterArray;
     public Dictionary<GameObject, int> HellArray;
@@ -40,6 +38,10 @@ public class PopUpManager : MonoBehaviour
     private List<GameObject> hellKeysList;
     [SerializeField]
     private List<int> hellValuesList;
+
+    private Dictionary<GameObject, int> biomeArray;
+
+    public Movement movement;
     
 
     delegate void Del();
@@ -53,9 +55,9 @@ public class PopUpManager : MonoBehaviour
     void Start()
     {
         currentBiome = biome.Grass;
+        movement.nextBiomeEvent += nextBiome;
         posX = player.position.x;
         posZ = player.position.z;
-        relHeight = player.position.y;
         Del builder = posChangedInstantiate;
         popMethodGroup = builder;
 
@@ -64,9 +66,6 @@ public class PopUpManager : MonoBehaviour
     void Update()
     {
         popMethodGroup();
-        /*Debug.Log("pos " + posArray.Count);
-        Debug.Log("past " + pastPlatforms.Count);
-        Debug.Log("removed " + toBeRemoved.Count); */ 
     }
 
     void instantiateDataStructures()
@@ -89,6 +88,43 @@ public class PopUpManager : MonoBehaviour
         for (int i = 0; i < hellKeysList.Count; i++)
         {
             HellArray.Add(hellKeysList[i], hellValuesList[i]);
+        }
+
+        biomeArray = ForestArray;
+    }
+
+    void nextBiome(object sender, EventArgs e)
+    {
+        currentBiome = Enum.GetValues(typeof(biome)).Cast<biome>()
+            .Skip(1).First();
+        switch (currentBiome)
+        {
+            case biome.Hell:
+                biomeArray = HellArray;
+                break;
+
+            case biome.Grass:
+                biomeArray = ForestArray;
+                break;
+
+            case biome.Ice:
+                biomeArray = WinterArray;
+                break;
+        }
+        StartCoroutine(newBiomePop());
+    }
+
+    IEnumerator newBiomePop()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(0.2f);
+            if (player.position.y > (float)currentBiome)
+            {
+                popStarterArea();
+
+                yield break;
+            }
         }
     }
 
@@ -115,20 +151,7 @@ public class PopUpManager : MonoBehaviour
             left = roundVector3(player.right * 2 + player.forward * 5 + player.position);
             right = roundVector3(-player.right * 2 + player.forward * 5 + player.position);
 
-            switch (currentBiome)
-            {
-                case biome.Hell:
-                    popBiome(HellArray);
-                    break;
-
-                case biome.Grass:
-                    popBiome(ForestArray);
-                    break;
-
-                case biome.Ice:
-                    popBiome(WinterArray);
-                    break;
-            }
+            popBiome(biomeArray);
 
             tweenerManager();
 
@@ -156,7 +179,6 @@ public class PopUpManager : MonoBehaviour
 
         toBeRemoved.Clear();
 
-        //posY = player.position.y;
     }
 
     void popBiome(Dictionary<GameObject, int> biomeArray)
@@ -179,27 +201,11 @@ public class PopUpManager : MonoBehaviour
 
      
     }
+ 
 
     public void popStarterArea()
     {
         posArray.Clear();
-
-        Dictionary<GameObject, int> biomeArray = new Dictionary<GameObject, int>();
-
-        switch (currentBiome)
-        {
-            case biome.Hell:
-                biomeArray = HellArray;
-                break;
-
-            case biome.Grass:
-                biomeArray = ForestArray;
-                break;
-
-            case biome.Ice:
-                biomeArray = WinterArray;
-                break;
-        }
 
         posArray.Add(Instantiate(getModel(biomeArray), roundVector3(new Vector3(player.position.x + 4, -2f, player.position.z - 4)), Quaternion.identity));
         posArray.Add(Instantiate(getModel(biomeArray), roundVector3(new Vector3(player.position.x + 4, -2f, player.position.z)), Quaternion.identity));
@@ -248,4 +254,7 @@ public class PopUpManager : MonoBehaviour
 
         return num - remainder;
     }
+
+
+
 }
