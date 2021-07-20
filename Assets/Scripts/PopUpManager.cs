@@ -23,6 +23,9 @@ public class PopUpManager : MonoBehaviour
     private Vector3 forward;
     private Vector3 left;
     private Vector3 right;
+    private bool puzzleUp = false;
+    
+    private GameObject currentPuzzle;
     public enum biome { Hell = -20, Grass = 0, Ice = 100};
     public biome currentBiome;
     private Del popMethodGroup;
@@ -111,7 +114,9 @@ public class PopUpManager : MonoBehaviour
                 biomeArray = WinterArray;
                 break;
         }
+        
         StartCoroutine(newBiomePop());
+        
     }
 
     IEnumerator newBiomePop()
@@ -122,10 +127,19 @@ public class PopUpManager : MonoBehaviour
             if (player.position.y > (float)currentBiome)
             {
                 popStarterArea();
-
+                StartCoroutine(puzzleReset());
                 yield break;
             }
         }
+    }
+
+    IEnumerator puzzleReset()
+    {
+        Destroy(currentPuzzle);
+        yield return new WaitForSeconds(6f);
+        Destroy(currentPuzzle);
+        currentPuzzle = null;
+        puzzleUp = false;
     }
 
     void posChangedInstantiate()
@@ -151,7 +165,7 @@ public class PopUpManager : MonoBehaviour
             left = roundVector3(player.right * 2 + player.forward * 5 + player.position);
             right = roundVector3(-player.right * 2 + player.forward * 5 + player.position);
 
-            popBiome(biomeArray);
+            popBiome();
 
             tweenerManager();
 
@@ -162,49 +176,92 @@ public class PopUpManager : MonoBehaviour
     {
         foreach (GameObject obj in posArray)
         {
-            tweener.AddTween(obj.transform, obj.transform.position, new Vector3(obj.transform.position.x, (float)currentBiome, obj.transform.position.z), 1.5f);
+            tweener.AddTween(obj.transform, obj.transform.position, roundVector3(new Vector3(obj.transform.position.x, Mathf.Clamp(player.position.y - 3, (float)currentBiome, (float)currentBiome + 16), obj.transform.position.z)), 1.5f);
         }
 
         for (int count = pastPlatforms.Count - 1; count > 0; count--)
         {
-            if (Vector3.Distance(player.transform.position, pastPlatforms.ElementAt(count).transform.position) > 25)
+            if (Vector3.Distance(player.transform.position, pastPlatforms.ElementAt(count).transform.position) > 35)
             {
-                GameObject hellObj = Instantiate(HellArray.ElementAt(0).Key, new Vector3(pastPlatforms.ElementAt(count).transform.position.x, pastPlatforms.ElementAt(count).transform.position.y, pastPlatforms.ElementAt(count).transform.position.z), Quaternion.identity);
-                tweener.AddTween(hellObj.transform, hellObj.transform.position, new Vector3(hellObj.transform.position.x, -20f, hellObj.transform.position.z), 3f);
-                Destroy(pastPlatforms.ElementAt(count));
+
+                GameObject elem = pastPlatforms.ElementAt(count);
+                tweener.AddTween(elem.transform, elem.transform.position, new Vector3(elem.transform.position.x, -20f, elem.transform.position.z), 6f);
                 pastPlatforms.RemoveAt(count);
                 
             }
+           
+            
         }
 
-        toBeRemoved.Clear();
+        if (currentPuzzle != null && puzzleUp == true)
+        {
+            if (Vector3.Distance(player.transform.position, GameObject.FindGameObjectWithTag("puzzle").transform.position) > 60)
+            {
+                tweener.AddTween(currentPuzzle.transform, currentPuzzle.transform.position, new Vector3(currentPuzzle.transform.position.x, -20f + (float)currentBiome, currentPuzzle.transform.position.z), 3f);
+                puzzleUp = false;
+            }
+        }
+
+     
 
     }
 
-    void popBiome(Dictionary<GameObject, int> biomeArray)
+    void checkPuzzle()
     {
 
-        if (Physics.CheckBox(new Vector3(forward.x, (float)currentBiome, forward.z), new Vector3(1, 1, 1)) == false)
+        if (currentPuzzle == null)
+        {
+            if (Physics.CheckBox(new Vector3(forward.x, (float)currentBiome / 5, forward.z) * 5, new Vector3(12, 1, 12)) == false && puzzleUp == false)
+            {
+                if (UnityEngine.Random.Range(1, 300) > biomeArray.ElementAt(biomeArray.Count - 1).Value)
+                {
+                    currentPuzzle = Instantiate(biomeArray.ElementAt(biomeArray.Count - 1).Key, new Vector3(forward.x, -2f, forward.z) + roundVector3(player.forward * 30), Quaternion.identity);
+                    tweener.AddTween(currentPuzzle.transform, currentPuzzle.transform.position, new Vector3(currentPuzzle.transform.position.x, (float)currentBiome, currentPuzzle.transform.position.z), 3f);
+                    puzzleUp = true;
+                }
+            }
+        }
+        else if (currentPuzzle != null && puzzleUp == false)
+        {
+            if (Vector3.Distance(player.transform.position, new Vector3(currentPuzzle.transform.position.x, (float)currentBiome, currentPuzzle.transform.position.z)) < 35)
+            {
+                tweener.AddTween(currentPuzzle.transform, currentPuzzle.transform.position, new Vector3(currentPuzzle.transform.position.x, (float)currentBiome, currentPuzzle.transform.position.z), 3f);
+                puzzleUp = true;
+            }
+        }
+    }
+
+    void popBiome()
+    {
+
+        checkPuzzle();
+
+        if (Physics.CheckBox(new Vector3(forward.x, Mathf.Clamp(player.position.y - 3, (float)currentBiome, (float)currentBiome + 16), forward.z), new Vector3(1, 1, 1)) == false)
         {
             posArray.Add(Instantiate(getModel(biomeArray), new Vector3(forward.x, -2f, forward.z), Quaternion.identity));
         }
 
-        if (Physics.CheckBox(new Vector3(left.x, (float)currentBiome, left.z), new Vector3(1, 1, 1)) == false)
+        if (Physics.CheckBox(new Vector3(left.x, Mathf.Clamp(player.position.y - 3, (float)currentBiome, (float)currentBiome + 16), left.z), new Vector3(1, 1, 1)) == false)
         {
             posArray.Add(Instantiate(getModel(biomeArray), new Vector3(left.x, -2f, left.z), Quaternion.identity));
         }
 
-        if (Physics.CheckBox(new Vector3(right.x, (float)currentBiome, right.z), new Vector3(1, 1, 1)) == false)
+        if (Physics.CheckBox(new Vector3(right.x, Mathf.Clamp(player.position.y - 3, (float)currentBiome, (float)currentBiome + 16), right.z), new Vector3(1, 1, 1)) == false)
         {
             posArray.Add(Instantiate(getModel(biomeArray), new Vector3(right.x, -2f, right.z), Quaternion.identity));
         }
-
-     
+        
     }
  
 
     public void popStarterArea()
     {
+
+        foreach (var obj in posArray)
+        {
+            pastPlatforms.Add(obj);
+        }
+
         posArray.Clear();
 
         posArray.Add(Instantiate(getModel(biomeArray), roundVector3(new Vector3(player.position.x + 4, -2f, player.position.z - 4)), Quaternion.identity));
@@ -234,7 +291,7 @@ public class PopUpManager : MonoBehaviour
 
     Vector3 roundVector3(Vector3 pos)
     {
-        return new Vector3(nearestMultiple(Convert.ToInt32(Mathf.Round(pos.x))), Mathf.Round(pos.y), nearestMultiple(Convert.ToInt32(Mathf.Round(pos.z))));
+        return new Vector3(nearestMultiple(Convert.ToInt32(Mathf.Round(pos.x))), nearestMultiple(Convert.ToInt32(Mathf.Round(pos.y))), nearestMultiple(Convert.ToInt32(Mathf.Round(pos.z))));
     }
 
     int nearestMultiple(int num)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Tweener : MonoBehaviour
@@ -53,14 +54,15 @@ public class Tweener : MonoBehaviour
             }
         }
 
-      /*  foreach (Tween tween in toBeRemoved)
+        for (int i = toBeRemoved.Count - 1; i > 0; i--)
         {
-            activeTweens.Remove(tween);
-            if (tween.Target.position.y == -2)
+            activeTweens.Remove(toBeRemoved.ElementAt(i));
+            if (toBeRemoved.ElementAt(i).EndPos.y == -20f && toBeRemoved.ElementAt(i).Target.gameObject.tag != "puzzle")
             {
-                Destroy(tween.Target.gameObject);
+                Destroy(toBeRemoved.ElementAt(i).Target.gameObject);
             }
-        } */
+            toBeRemoved.RemoveAt(i);
+        } 
     }
 
     public void AddTween(Transform targetObject, Vector3 startPos, Vector3 endPos, float duration)

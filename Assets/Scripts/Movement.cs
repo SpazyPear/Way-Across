@@ -33,7 +33,7 @@ public class Movement : MonoBehaviour
     void Start()
     {
         //camMove.handleCamMove(target);
-        //Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState = CursorLockMode.Locked;
         Application.targetFrameRate = 144;
     }
 
@@ -68,8 +68,9 @@ public class Movement : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E) && canUseJetPack)
         {
-            rb.AddForce(Vector3.up * 47, ForceMode.Impulse);
+            rb.AddForce(Vector3.up * 45, ForceMode.Impulse);
             canUseJetPack = false;
+            Physics.gravity += new Vector3(0, 1.2f, 0);
             OnNextBiome();
         }
     }
