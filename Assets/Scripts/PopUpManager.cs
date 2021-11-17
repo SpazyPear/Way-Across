@@ -312,6 +312,4 @@ public class PopUpManager : MonoBehaviour
         return num - remainder;
     }
 
-
-
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.XR;
 
 public class Movement : MonoBehaviour
 {
@@ -27,6 +28,8 @@ public class Movement : MonoBehaviour
     public bool canUseJetPack = false;
     public PopUpManager popUpManager;
     public StatManger statManager;
+    private InputDevice RightController;
+    private InputDevice LeftController;
     
 
     // Start is called before the first frame update
@@ -35,6 +38,12 @@ public class Movement : MonoBehaviour
         //camMove.handleCamMove(target);
         Cursor.lockState = CursorLockMode.Locked;
         Application.targetFrameRate = 144;
+        List<InputDevice> inputDevices = new List<InputDevice>();
+        InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.Right | InputDeviceCharacteristics.Controller, inputDevices);
+        RightController = inputDevices[0];
+        inputDevices.Clear();
+        InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.Left | InputDeviceCharacteristics.Controller, inputDevices);
+        LeftController = inputDevices[0];
     }
 
     // Update is called once per frame
@@ -50,18 +59,22 @@ public class Movement : MonoBehaviour
 
     private void collectInput()
     {
-        moveHorizontal = Input.GetAxis("Horizontal");
-        moveVertical = Input.GetAxis("Vertical");
+       // moveHorizontal = Input.GetAxis("Horizontal");
+        //moveVertical = Input.GetAxis("Vertical");
+        RightController.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 axisValue);
+        moveHorizontal = axisValue.x;
+        moveVertical = axisValue.y;
         Transform[] ts = target.GetComponentsInChildren<Transform>();
-        foreach (Transform com in ts)
-        {
-        }
+
         if (ts.Length > 1)
         {
 
-            moveX = Input.GetAxis("Mouse X");
-            moveY = Input.GetAxis("Mouse Y");
+           /* moveX = Input.GetAxis("Mouse X");
+            moveY = Input.GetAxis("Mouse Y");*/
         }
+        LeftController.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 lookAxisValue);
+        moveX = lookAxisValue.x;
+        moveY = lookAxisValue.y;
     }
 
     void jetpackUse()
@@ -92,7 +105,9 @@ public class Movement : MonoBehaviour
 
     private void jump()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        RightController.TryGetFeatureValue(CommonUsages.primaryButton, out bool buttonPressed);
+        Debug.Log(isGrounded);
+        if ((Input.GetKeyDown(KeyCode.Space) || buttonPressed) && isGrounded)
         {
             rb.AddForce(new Vector3(0, 2.0f, 0) * jumpForce, ForceMode.Impulse);
         }
