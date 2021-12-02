@@ -30,7 +30,8 @@ public class Movement : MonoBehaviour
     public StatManger statManager;
     private InputDevice RightController;
     private InputDevice LeftController;
-    
+
+    public event EventHandler nextBiomeEvent;
 
     // Start is called before the first frame update
     void Start()
@@ -98,8 +99,6 @@ public class Movement : MonoBehaviour
         nextBiomeEvent?.Invoke(this, EventArgs.Empty);
     }
 
-    public event EventHandler nextBiomeEvent;
-
     private void movement()
     {
         target.transform.Rotate(0, moveX * sensitivity, 0);
@@ -110,7 +109,7 @@ public class Movement : MonoBehaviour
 
     private void jump()
     {
-        RightController.TryGetFeatureValue(CommonUsages.primaryButton, out bool buttonPressed);
+        RightController.TryGetFeatureValue(CommonUsages.triggerButton, out bool buttonPressed);
         if (buttonPressed && isGrounded)
         {
             rb.AddForce(new Vector3(0, 5.0f, 0) * jumpForce, ForceMode.Impulse);
@@ -132,27 +131,6 @@ public class Movement : MonoBehaviour
         }
 
     }
-
-    private void OnCollisionStay(Collision collision)
-    {
-        if (collision.gameObject.tag == "ground")
-        {
-            isGrounded = true;
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.gameObject.tag == "ground")
-        { 
-            isGrounded = false;
-        }
-    }
-
-
-
-
-
 
 }
 
