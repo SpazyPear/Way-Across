@@ -21,7 +21,7 @@ public class Movement : MonoBehaviour
     private float moveVertical;
     private float moveX;
     private float moveY;
-    private float timer = 0.4f;
+    private float timer = 2f;
     private bool isTimerRunning = false;
     private Collider other;
     public GameObject target;
@@ -52,27 +52,40 @@ public class Movement : MonoBehaviour
  
         collectInput();
         movement();
-        jump();
-        jetpackUse();
+        if (isTimerRunning == false)
+        {
+            jump();
+            jetpackUse();
+        }
+        else
+        {
+            timer -= Time.deltaTime;
+            if (timer < 0)
+            {
+                timer = 2f;
+                isTimerRunning = false;
+            }
+        }
 
     }
 
     private void collectInput()
     {
 
-        LeftController.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 axisValue);
-        moveHorizontal = axisValue.x;
+        RightController.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 axisValue);
+        //moveHorizontal = axisValue.x;
         moveVertical = axisValue.y;
         
         RightController.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 lookAxisValue);
         moveX = lookAxisValue.x;
-        moveY = lookAxisValue.y;
+        //moveY = lookAxisValue.y;
     }
 
     void jetpackUse()
     {
         if (RightController.TryGetFeatureValue(CommonUsages.secondaryButton, out bool pressed) && canUseJetPack)
         {
+            isTimerRunning = true;
             rb.AddForce(Vector3.up * 45, ForceMode.Impulse);
             canUseJetPack = false;
             Physics.gravity += new Vector3(0, 1.2f, 0);
@@ -100,7 +113,8 @@ public class Movement : MonoBehaviour
         RightController.TryGetFeatureValue(CommonUsages.primaryButton, out bool buttonPressed);
         if (buttonPressed && isGrounded)
         {
-            rb.AddForce(new Vector3(0, 2.0f, 0) * jumpForce, ForceMode.Impulse);
+            rb.AddForce(new Vector3(0, 5.0f, 0) * jumpForce, ForceMode.Impulse);
+            isTimerRunning = true;
         }
     }
 
