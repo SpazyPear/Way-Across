@@ -84,10 +84,10 @@ public class Movement : MonoBehaviour
 
     private void movement()
     {
-        target.transform.Rotate(0, moveX * sensitivity, 0);
-        cam.transform.Rotate(-moveY * sensitivity, 0, 0);
+        //target.transform.Rotate(0, moveX * sensitivity, 0);
+        //cam.transform.Rotate(-moveY * sensitivity, 0, 0);
         target.transform.Translate(Vector3.right * moveHorizontal * moveSens * Time.deltaTime, Space.Self);
-        target.transform.Translate(Vector3.forward * moveVertical * moveSens * Time.deltaTime, Space.Self);
+        //target.transform.Translate(Vector3.forward * moveVertical * moveSens * Time.deltaTime, Space.Self);
     }
 
     private void jump()

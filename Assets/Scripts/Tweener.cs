@@ -57,11 +57,11 @@ public class Tweener : MonoBehaviour
         for (int i = toBeRemoved.Count - 1; i > 0; i--)
         {
             activeTweens.Remove(toBeRemoved.ElementAt(i));
-            if (toBeRemoved.ElementAt(i).EndPos.y == -20f && toBeRemoved.ElementAt(i).Target.gameObject.tag != "puzzle")
+            /*if (toBeRemoved.ElementAt(i).EndPos.y == -20f && toBeRemoved.ElementAt(i).Target.gameObject.tag != "puzzle")
             {
                 Destroy(toBeRemoved.ElementAt(i).Target.gameObject);
             }
-            toBeRemoved.RemoveAt(i);
+            toBeRemoved.RemoveAt(i);*/
         } 
     }
 
